@@ -343,7 +343,10 @@ Be specific and educational in your feedback. Focus on helping the user learn.""
                 
                 llm_result = json.loads(eval_json)
                 
-                final_score = actual_score  
+                # Calculate actual score from the evaluation
+                correct_count = sum(1 for item in llm_result.get("detailed_feedback", []) if item.get("is_correct", False))
+                total_questions = len(assessment["questions"])
+                final_score = round((correct_count / total_questions) * 100) if total_questions > 0 else 0
                 
                 if final_score >= 80:
                     final_pass_status = "pass"
@@ -352,12 +355,11 @@ Be specific and educational in your feedback. Focus on helping the user learn.""
                 else:
                     final_pass_status = "retake"
                 
-        
                 result = {
                     "score": final_score,
                     "pass_status": final_pass_status,
-                    "correct_answers": actual_correct,
-                    "total_questions": len(assessment["questions"]),
+                    "correct_answers": correct_count,
+                    "total_questions": total_questions,
                     "feedback": llm_result.get("detailed_feedback", []),
                     "overall_feedback": llm_result.get("overall_feedback", "Assessment completed."),
                     "suggestions": llm_result.get("suggestions", ""),
