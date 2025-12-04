@@ -1,1 +1,1 @@
-web: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
+web: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT --timeout-keep-alive 30 --timeout-graceful-shutdown 30

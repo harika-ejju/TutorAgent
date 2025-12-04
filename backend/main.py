@@ -14,17 +14,29 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-REDIS_URL = os.getenv("REDIS_URL")
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")  # Default fallback
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:3001", "http://127.0.0.1:3001", "http://localhost:3002", "http://127.0.0.1:3002"],
+    allow_origins=["*"],  # Allow all origins for deployment
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Health check endpoint
+@app.get("/")
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "message": "Tutor Agent API is running"}
+
+@app.on_event("startup")
+async def startup_event():
+    print("Starting up Tutor Agent API...")
+    print(f"OpenAI API Key configured: {'Yes' if OPENAI_API_KEY else 'No'}")
+    print(f"Redis URL: {REDIS_URL}")
 
 class UserLogin(BaseModel):
     email: str
@@ -84,7 +96,15 @@ async def call_openai(prompt: str) -> str:
 
 async def handle_message(user_id: str, msg: dict, manager: ConnectionManager):
     print(f"Handling message for {user_id}: {msg}")
-    rdb = redis.from_url(REDIS_URL, decode_responses=True)
+    
+    # Make Redis connection optional for deployment
+    rdb = None
+    try:
+        rdb = redis.from_url(REDIS_URL, decode_responses=True)
+        await rdb.ping()  # Test connection
+    except Exception as e:
+        print(f"Redis connection failed: {e}. Continuing without Redis.")
+        rdb = None
 
 
     if msg["type"] in ["start_lesson", "chat_message", "message"]:
