@@ -29,8 +29,4 @@ except ImportError:
 # Export at module level
 application = app
 
-# Create wsgi object for gunicorn
-wsgi = type('wsgi', (), {'application': application})()
-
 print(f"✓ Application ready: {application}")
-print(f"✓ WSGI ready: {wsgi}")
