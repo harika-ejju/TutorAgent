@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-WSGI entry point for Render deployment.
-Render looks for 'your_application.wsgi' by default.
+Main application module that Render's gunicorn can find.
 """
 import os
 import sys
@@ -11,20 +10,21 @@ backend_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend'
 if backend_dir not in sys.path:
     sys.path.insert(0, backend_dir)
 
-# Change working directory to backend
-try:
-    os.chdir(backend_dir)
-except:
-    pass
-
 # Import the FastAPI app
-from main import app
+try:
+    from main import app
+    application = app
+except ImportError as e:
+    print(f"Error importing main: {e}")
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"Python path: {sys.path}")
+    raise
 
-# This is what gunicorn expects
-application = app
+# Create a wsgi attribute for gunicorn
+wsgi = type('wsgi', (), {'application': application})()
 
 # For direct execution
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(application, host="0.0.0.0", port=port)
