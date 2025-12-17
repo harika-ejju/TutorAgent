@@ -28,7 +28,7 @@ jobs:
     
     - name: Install frontend dependencies
       working-directory: ./frontend
-      run: npm install
+      run: npm ci
     
     - name: Build frontend
       working-directory: ./frontend
@@ -41,12 +41,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-    
     - name: Build backend Docker image
       run: docker build -f Dockerfile.backend -t tutor-agent-backend .
     
     - name: Build frontend Docker image
-      working-directory: ./frontend
-      run: docker build -f ../Dockerfile.frontend -t tutor-agent-frontend .
+      run: docker build -f Dockerfile.frontend -t tutor-agent-frontend ./frontend
