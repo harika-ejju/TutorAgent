@@ -1,0 +1,12 @@
+.git
+.github
+__pycache__
+*.pyc
+.env
+.env.local
+node_modules
+.next
+npm-debug.log*
+.DS_Store
+README.md
+*.md

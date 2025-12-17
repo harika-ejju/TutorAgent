@@ -1,0 +1,88 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install Python quality tools
+      run: |
+        pip install black isort pylint bandit safety
+    
+    - name: Check Python formatting with Black
+      run: |
+        black --check backend/ || echo "⚠️ Python code needs formatting"
+      continue-on-error: true
+    
+    - name: Check import sorting
+      run: |
+        isort --check-only backend/ || echo "⚠️ Imports need sorting"
+      continue-on-error: true
+    
+    - name: Run Pylint
+      run: |
+        pylint backend/ --exit-zero --output-format=text
+      continue-on-error: true
+    
+    - name: Run Bandit security checks
+      run: |
+        bandit -r backend/ -f json -o bandit-report.json || true
+      continue-on-error: true
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+    
+    - name: Check frontend code quality
+      working-directory: ./frontend
+      run: |
+        npm run lint || echo "⚠️ Frontend linting issues found"
+      continue-on-error: true
+
+  test-coverage:
+    name: Test Coverage Report
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install -r backend/requirements.txt
+        pip install pytest pytest-cov
+    
+    - name: Run tests with coverage
+      run: |
+        export PYTHONPATH="${PYTHONPATH}:$(pwd):$(pwd)/backend"
+        pytest backend/ --cov=backend --cov-report=term --cov-report=html
+      continue-on-error: true
+    
+    - name: Comment coverage on PR
+      uses: py-cov-action/python-coverage-comment-action@v3
+      with:
+        GITHUB_TOKEN: ${{ github.token }}
+        MINIMUM_GREEN: 80
+        MINIMUM_ORANGE: 60
+      continue-on-error: true

@@ -1,0 +1,25 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Deploy Backend
+      run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+      if: secrets.RENDER_DEPLOY_HOOK != ''
+    
+    - name: Deploy Frontend
+      uses: amondnet/vercel-action@v25
+      if: secrets.VERCEL_TOKEN != ''
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./frontend

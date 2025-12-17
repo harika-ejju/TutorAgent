@@ -378,9 +378,9 @@ export default function TutoringApp() {
                 <div className="flex justify-center items-center h-full">
                   <div className="text-center">
                     <div className="text-4xl mb-4">👋</div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Hi, I'm your Tutor Agent!</h2>
-                    <p className="text-lg text-gray-600">Ask me about any topic and I'll teach you in 5 simple steps</p>
-                    <p className="text-sm text-gray-500 mt-2">Try: "Teach me about machine learning" or "Explain photosynthesis"</p>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Hi, I&apos;m your Tutor Agent!</h2>
+                    <p className="text-lg text-gray-600">Ask me about any topic and I&apos;ll teach you in 5 simple steps</p>
+                    <p className="text-sm text-gray-500 mt-2">Try: &quot;Teach me about machine learning&quot; or &quot;Explain photosynthesis&quot;</p>
                   </div>
                 </div>
               ) : (
