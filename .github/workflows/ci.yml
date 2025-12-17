@@ -48,4 +48,5 @@ jobs:
       run: docker build -f Dockerfile.backend -t tutor-agent-backend .
     
     - name: Build frontend Docker image
-      run: docker build -f Dockerfile.frontend -t tutor-agent-frontend ./frontend
+      working-directory: ./frontend
+      run: docker build -f ../Dockerfile.frontend -t tutor-agent-frontend .
